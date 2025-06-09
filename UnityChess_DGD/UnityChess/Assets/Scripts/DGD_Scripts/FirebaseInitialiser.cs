@@ -4,21 +4,44 @@ using UnityEngine;
 
 using Firebase;
 using Firebase.Extensions;
+using Firebase.Auth;
 
 public class FirebaseInitialiser : MonoBehaviour
 {
+    private FirebaseAuth _auth;
+
     void Awake()
     {
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(depTask =>
         {
-            if (task.Result == DependencyStatus.Available)
+            if (depTask.Result == DependencyStatus.Available)
             {
                 Debug.Log("Firebase is Ready!");
+                _auth = FirebaseAuth.DefaultInstance;
+                SignInAnon();
+
+                var app = FirebaseApp.DefaultInstance;
+                Debug.Log($"[Firebase Init] apiKey: {app.Options.ApiKey}, projectId: {app.Options.ProjectId}");
             }
             else
             {
-                Debug.LogError($"Could not Resolve Firebase Dependencies...: {task.Result}");
+                Debug.LogError($"Could not Resolve the Firebase Dependencies..: {depTask.Result}");
             }
+        });
+    }
+
+    private void SignInAnon()
+    {
+        _auth.SignInAnonymouslyAsync().ContinueWithOnMainThread(signInTask =>
+        {
+            if (signInTask.Exception != null)
+            {
+                Debug.LogError($"Authentication Failed..: {signInTask.Exception}");
+                return;
+            }
+
+            FirebaseUser newUser = _auth.CurrentUser;
+            Debug.Log($"Signed in Anonymously as {newUser.UserId}");
         });
     }
 }

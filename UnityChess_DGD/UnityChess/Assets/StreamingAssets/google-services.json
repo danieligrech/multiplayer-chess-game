@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "626614061896",
+    "project_id": "dg-cg-homeassignment",
+    "storage_bucket": "dg-cg-homeassignment.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626614061896:android:a28d97b59c9b2f060dc17d",
+        "android_client_info": {
+          "package_name": "com.companyname.unitychess"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD87n5mzknTlAHNNwcHjfiMsBbv3lwCm4M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
