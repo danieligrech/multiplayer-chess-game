@@ -10,6 +10,10 @@ using UnityEngine.UI;
 /// Inherits from MonoBehaviourSingleton to ensure a single instance throughout the game.
 /// </summary>
 public class UIManager : MonoBehaviourSingleton<UIManager> {
+	[Header("Game End UI")]
+	public GameObject gameEndScreen;
+	public UnityEngine.UI.Text endText;
+
 	// Reference to the promotion UI panel.
 	[SerializeField] private GameObject promotionUI = null;
 	// Text element to display game result messages (e.g. win, draw).
@@ -41,6 +45,11 @@ public class UIManager : MonoBehaviourSingleton<UIManager> {
 	private Timeline<FullMoveUI> moveUITimeline;
 	// Computed button colour based on the background colour and darkening factor.
 	private Color buttonColor;
+
+	void Awake()
+	{
+		gameEndScreen.SetActive(false);
+	}
 
 	/// <summary>
 	/// Initialises the UIManager, subscribes to game events, and configures initial UI settings.
@@ -292,4 +301,12 @@ public class UIManager : MonoBehaviourSingleton<UIManager> {
 	/// Updates the game string input field with the current serialized game state.
 	/// </summary>
 	private void UpdateGameStringInputField() => GameStringInputField.text = GameManager.Instance.SerializeGame();
+
+	public void ShowGameEnd(string message)
+	{
+		endText.text = message;
+		gameEndScreen.SetActive(true);
+
+		BoardManager.Instance.SetActiveAllPieces(false);
+	}
 }

@@ -51,8 +51,20 @@ public class TurnManager : NetworkBehaviour
         if (!GameManager.Instance.ExecuteMove(move))
             return;
 
-        IsWhiteTurn.Value = !IsWhiteTurn.Value;
+        GameManager.Instance.HalfMoveTimeline.TryGetCurrent(out HalfMove latest);
+        if (latest.CausedCheckmate)
+        {
+            string winner = isSenderWhite ? "White" : "Black";
+            EndGameClientRpc($"{winner} has Won by Checkmate!");
+            return;
+        }
+        if (latest.CausedStalemate)
+        {
+            EndGameClientRpc("Game Drawn by Stalemate...");
+            return;
+        }
 
+        IsWhiteTurn.Value = !IsWhiteTurn.Value;
         MovePieceClientRpc(fromX, fromY, toX, toY);
     }
 
@@ -72,5 +84,22 @@ public class TurnManager : NetworkBehaviour
         }
 
         BoardManager.Instance.RefreshBoardVisuals();
+    }
+
+    [ClientRpc]
+    void EndGameClientRpc(string resultMessage)
+    {
+        Debug.Log($"[EndGameClientRpc] {resultMessage}");
+        UIManager.Instance.ShowGameEnd(resultMessage);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ResignServerRpc(ServerRpcParams rpcParams = default)
+    {
+        var resigner = rpcParams.Receive.SenderClientId;
+        var winner = resigner == WhiteClientId.Value ? BlackClientId.Value : WhiteClientId.Value;
+
+        string winningSide = winner == WhiteClientId.Value ? "White" : "Black";
+        EndGameClientRpc($"{winningSide} Has Won Via Resignation!");
     }
 }
