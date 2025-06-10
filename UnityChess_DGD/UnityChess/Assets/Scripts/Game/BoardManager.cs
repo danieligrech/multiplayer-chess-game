@@ -123,13 +123,38 @@ public class BoardManager : MonoBehaviourSingleton<BoardManager> {
 	/// <param name="piece">The chess piece to display.</param>
 	/// <param name="position">The board square where the piece should be placed.</param>
 	public void CreateAndPlacePieceGO(Piece piece, Square position) {
-		// Construct the model name based on the piece's owner and type.
-		string modelName = $"{piece.Owner} {piece.GetType().Name}";
+        Debug.Log($"[CreateGO] Trying to place {piece.Owner} {piece.GetType().Name} at {position}");
+
+        // Construct the model name based on the piece's owner and type.
+        string modelName = $"{piece.Owner} {piece.GetType().Name}";
+
+		var prefab = Resources.Load<GameObject>($"PieceSets/Marble/{modelName}");
+		if(prefab == null)
+		{
+			Debug.LogError($"[CreateGO] Prefab not found at Resources/PieceSets/Marble/{modelName}");
+			return;
+		}
+
+		var parentTf = positionMap[position].transform;
+		GameObject pieceGO = Instantiate(prefab, parentTf);
+
+		if(pieceGO == null)
+		{
+			Debug.LogError($"[CreateGO] Instantiate Returned Null for {modelName}");
+			return;
+		}
+
+		pieceGO.tag = "ChessPiece";
+		pieceGO.transform.localPosition = Vector3.zero;
+		Debug.Log($"[CreateGO] Placed {modelName} at {position}");
+
 		// Instantiate the piece GameObject from the corresponding resource.
-		GameObject pieceGO = Instantiate(
-			Resources.Load("PieceSets/Marble/" + modelName) as GameObject,
-			positionMap[position].transform
-		);
+		//GameObject pieceGO = Instantiate(
+			//Resources.Load("PieceSets/Marble/" + modelName) as GameObject,
+			//positionMap[position].transform
+		//);
+
+
 	}
 
 	/// <summary>
@@ -233,4 +258,26 @@ public class BoardManager : MonoBehaviourSingleton<BoardManager> {
 	/// <returns>The corresponding square GameObject.</returns>
 	public GameObject GetSquareGOByPosition(Square position) =>
 		Array.Find(allSquaresGO, go => go.name == SquareToString(position));
+
+	public void RefreshBoardVisuals()
+	{
+        Debug.Log("[RefreshBoard] START, pieces count = " + GameManager.Instance.CurrentPieces.Count);
+
+		var existing = GameObject.FindGameObjectsWithTag("ChessPiece");
+        Debug.Log($"[RefreshBoard] Destroying {existing.Length} existing piece GameObjects");
+
+		foreach (var go in existing)
+		{
+
+			Destroy(go);
+		}
+
+		foreach(var(square, piece) in GameManager.Instance.CurrentPieces)
+		{
+            Debug.Log($"[RefreshBoard] Placing {piece.GetType().Name} at {square}");
+			CreateAndPlacePieceGO(piece, square);
+        }
+
+		Debug.Log("[RefreshBoard] END");
+	}
 }

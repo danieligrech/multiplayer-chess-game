@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviourSingleton<GameManager> {
 	/// </summary>
 	public void Start() {
 		// Subscribe to the event triggered when a visual piece is moved.
-		VisualPiece.VisualPieceMoved += OnPieceMoved;
+		//VisualPiece.VisualPieceMoved += OnPieceMoved;
 
 		// Initialise the serializers for FEN and PGN formats.
 		serializersByType = new Dictionary<GameSerializationType, IGameSerializer> {
@@ -289,46 +289,51 @@ public class GameManager : MonoBehaviourSingleton<GameManager> {
 	/// <param name="movedPieceTransform">The transform of the moved piece.</param>
 	/// <param name="closestBoardSquareTransform">The transform of the closest board square.</param>
 	/// <param name="promotionPiece">Optional promotion piece (used in pawn promotion).</param>
-	private async void OnPieceMoved(Square movedPieceInitialSquare, Transform movedPieceTransform, Transform closestBoardSquareTransform, Piece promotionPiece = null) {
-		// Determine the destination square based on the name of the closest board square transform.
-		Square endSquare = new Square(closestBoardSquareTransform.name);
+	private async void OnPieceMoved(Square movedPieceInitialSquare, Transform movedPieceTransform, Transform closestBoardSquareTransform, Piece promotionPiece = null)
+	{
+        // Determine the destination square based on the name of the closest board square transform.
+        //Square endSquare = new Square(closestBoardSquareTransform.name);
 
-		// Attempt to retrieve a legal move from the game logic.
-		if (!game.TryGetLegalMove(movedPieceInitialSquare, endSquare, out Movement move)) {
-			// If no legal move is found, reset the piece's position.
-			movedPieceTransform.position = movedPieceTransform.parent.position;
-#if DEBUG_VIEW
-			// In debug view, log the legal moves for further analysis.
-			Piece movedPiece = CurrentBoard[movedPieceInitialSquare];
-			game.TryGetLegalMovesForPiece(movedPiece, out ICollection<Movement> legalMoves);
-			UnityChessDebug.ShowLegalMovesInLog(legalMoves);
-#endif
-			return;
-		}
+        // Attempt to retrieve a legal move from the game logic.
+        //if (!game.TryGetLegalMove(movedPieceInitialSquare, endSquare, out Movement move)) {
+        // If no legal move is found, reset the piece's position.
+        //movedPieceTransform.position = movedPieceTransform.parent.position;
+        //#if DEBUG_VIEW
+        // In debug view, log the legal moves for further analysis.
+        //Piece movedPiece = CurrentBoard[movedPieceInitialSquare];
+        //game.TryGetLegalMovesForPiece(movedPiece, out ICollection<Movement> legalMoves);
+        //UnityChessDebug.ShowLegalMovesInLog(legalMoves);
+        //#endif
+        //return;
+        // If the move is a promotion move, set the promotion piece.
+        //if (move is PromotionMove promotionMove)
+        //{
+            //promotionMove.SetPromotionPiece(promotionPiece);
+        //}
 
-		// If the move is a promotion move, set the promotion piece.
-		if (move is PromotionMove promotionMove) {
-			promotionMove.SetPromotionPiece(promotionPiece);
-		}
+        // If the move is not a special move or its special behaviour is successfully handled,
+        // and the move executes successfully...
+        //if ((move is not SpecialMove specialMove || await TryHandleSpecialMoveBehaviourAsync(specialMove))
+            //&& TryExecuteMove(move)
+        //)
+        //{
+            // For non-special moves, update the board visuals by destroying any piece at the destination.
+            //if (move is not SpecialMove) { BoardManager.Instance.TryDestroyVisualPiece(move.End); }
 
-		// If the move is not a special move or its special behaviour is successfully handled,
-		// and the move executes successfully...
-		if ((move is not SpecialMove specialMove || await TryHandleSpecialMoveBehaviourAsync(specialMove))
-		    && TryExecuteMove(move)
-		) {
-			// For non-special moves, update the board visuals by destroying any piece at the destination.
-			if (move is not SpecialMove) { BoardManager.Instance.TryDestroyVisualPiece(move.End); }
+            // For promotion moves, update the moved piece transform to the newly created visual piece.
+            //if (move is PromotionMove)
+            //{
+                //movedPieceTransform = BoardManager.Instance.GetPieceGOAtPosition(move.End).transform;
+            //}
 
-			// For promotion moves, update the moved piece transform to the newly created visual piece.
-			if (move is PromotionMove) {
-				movedPieceTransform = BoardManager.Instance.GetPieceGOAtPosition(move.End).transform;
-			}
+            // Re-parent the moved piece to the destination square and update its position.
+            //movedPieceTransform.parent = closestBoardSquareTransform;
+            //movedPieceTransform.position = closestBoardSquareTransform.position;
+        //}
+    }
+		
 
-			// Re-parent the moved piece to the destination square and update its position.
-			movedPieceTransform.parent = closestBoardSquareTransform;
-			movedPieceTransform.position = closestBoardSquareTransform.position;
-		}
-	}
+		
 	
 	/// <summary>
 	/// Determines whether the specified piece has any legal moves.
@@ -337,5 +342,15 @@ public class GameManager : MonoBehaviourSingleton<GameManager> {
 	/// <returns>True if the piece has at least one legal move; otherwise, false.</returns>
 	public bool HasLegalMoves(Piece piece) {
 		return game.TryGetLegalMovesForPiece(piece, out _);
+	}
+
+	public bool TryGetLegalMove(Square from, Square to, out Movement move)
+	{
+		return game.TryGetLegalMove(from, to, out move);
+	}
+
+	public bool ExecuteMove(Movement move)
+	{
+		return TryExecuteMove(move);
 	}
 }
