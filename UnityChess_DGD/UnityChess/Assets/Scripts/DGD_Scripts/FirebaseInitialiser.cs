@@ -5,6 +5,8 @@ using UnityEngine;
 using Firebase;
 using Firebase.Extensions;
 using Firebase.Auth;
+using System;
+using Firebase.Storage;
 
 public class FirebaseInitialiser : MonoBehaviour
 {
@@ -22,6 +24,9 @@ public class FirebaseInitialiser : MonoBehaviour
 
                 var app = FirebaseApp.DefaultInstance;
                 Debug.Log($"[Firebase Init] apiKey: {app.Options.ApiKey}, projectId: {app.Options.ProjectId}");
+
+                FirebaseStorage storage = FirebaseStorage.DefaultInstance;
+                Debug.Log($"Firebase Storage has been Successfully Implemented!!: {storage.RootReference.Path}");
             }
             else
             {

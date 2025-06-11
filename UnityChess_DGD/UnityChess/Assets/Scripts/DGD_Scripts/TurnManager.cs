@@ -120,4 +120,16 @@ public class TurnManager : NetworkBehaviour
         Debug.Log($"[Latency] RTT = {rtt}ms");
         UIManager.Instance.ShowLatency(rtt);
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void PurchaseDLCServerRpc(ServerRpcParams rpcParams = default)
+    {
+        PurchaseDLCClientRpc();
+    }
+
+    [ClientRpc]
+    void PurchaseDLCClientRpc(ClientRpcParams rpcParams = default)
+    {
+        FindObjectOfType<DLCManager>().ShowPurchasedDLC();
+    }
 }
