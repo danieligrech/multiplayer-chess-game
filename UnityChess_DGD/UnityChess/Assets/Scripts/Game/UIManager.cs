@@ -14,6 +14,9 @@ public class UIManager : MonoBehaviourSingleton<UIManager> {
 	public GameObject gameEndScreen;
 	public UnityEngine.UI.Text endText;
 
+	[Header("Performance UI")]
+	public Text latencyText;
+
 	// Reference to the promotion UI panel.
 	[SerializeField] private GameObject promotionUI = null;
 	// Text element to display game result messages (e.g. win, draw).
@@ -49,6 +52,7 @@ public class UIManager : MonoBehaviourSingleton<UIManager> {
 	void Awake()
 	{
 		gameEndScreen.SetActive(false);
+		latencyText.text = "";
 	}
 
 	/// <summary>
@@ -308,5 +312,10 @@ public class UIManager : MonoBehaviourSingleton<UIManager> {
 		gameEndScreen.SetActive(true);
 
 		BoardManager.Instance.SetActiveAllPieces(false);
+	}
+
+	public void ShowLatency(long ms)
+	{
+		latencyText.text = $"Ping: {ms}ms";
 	}
 }

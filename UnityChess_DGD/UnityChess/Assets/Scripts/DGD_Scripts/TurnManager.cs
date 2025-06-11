@@ -4,6 +4,7 @@ using UnityEngine;
 
 using Unity.Netcode;
 using UnityChess;
+using System;
 
 public class TurnManager : NetworkBehaviour
 {
@@ -101,5 +102,22 @@ public class TurnManager : NetworkBehaviour
 
         string winningSide = winner == WhiteClientId.Value ? "White" : "Black";
         EndGameClientRpc($"{winningSide} Has Won Via Resignation!");
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void PingServerRpc(long clientTimestamp, ServerRpcParams rpcParams = default)
+    {
+        PongClientRpc(clientTimestamp, rpcParams.Receive.SenderClientId);
+    }
+
+    [ClientRpc]
+    private void PongClientRpc(long clientTimestamp, ulong clientId, ClientRpcParams rpcParams = default)
+    {
+        if (NetworkManager.Singleton.LocalClientId != clientId) return;
+        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        long rtt = now - clientTimestamp;
+
+        Debug.Log($"[Latency] RTT = {rtt}ms");
+        UIManager.Instance.ShowLatency(rtt);
     }
 }
